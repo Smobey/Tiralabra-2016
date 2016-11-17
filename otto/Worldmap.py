@@ -12,6 +12,7 @@ class Worldmap:
         self.cities = []
 
     def debug_creation(self):
+        # Just a testing function. For testing. Manually.
         self.forest_tiles.append((64, 48))
         self.tilemap[64][48] = 1
         self.grow_forests(12000)
@@ -21,17 +22,20 @@ class Worldmap:
         self.tilemap[112][48] = 3
         self.draw_roads()
 
-    def exists(self, x, y):  # Check if tile exists
+    def exists(self, x, y):
+    # Check if tile exists
         if x < 0 or x >= self.width:
             return False
         if y < 0 or y >= self.height:
             return False
         return True
 
-    def get_type(self, x, y):  # Give tile type of (X, Y)
+    def get_type(self, x, y):
+    # Give tile type of (X, Y)
         return self.tilemap[x][y]
 
-    def get_adjucent(self, x, y):  # Return all tiles adjucent to (x, y)
+    def get_adjucent(self, x, y):
+    # Return all tiles adjucent to (x, y)
         adjucent = []
         if self.exists(x - 1, y):
             adjucent.append((x - 1, y))
@@ -43,7 +47,8 @@ class Worldmap:
             adjucent.append((x, y + 1))
         return adjucent
 
-    def get_adjucent_by_type(self, type, x, y):  # Return all tiles of type T adjucent to (x, y)
+    def get_adjucent_by_type(self, type, x, y):
+    # Return all tiles of type T adjucent to (x, y)
         adjucent = []
         if self.exists(x - 1, y) and self.get_type(x - 1, y) == type:
             adjucent.append((x - 1, y))
@@ -55,7 +60,8 @@ class Worldmap:
             adjucent.append((x, y + 1))
         return adjucent
 
-    def create_cities(self, amount):  # Randomly create X amount of city tiles
+    def create_cities(self, amount):
+    # Randomly create X amount of city tiles
         for i in range(0, amount):
             plains = []
             for x in range(5, self.width - 6):  # Pick non-forest/mountain/etc tiles for city locations
@@ -66,16 +72,16 @@ class Worldmap:
             self.cities.append(tile)
             self.tilemap[tile[0]][tile[1]] = 3
 
-    def create_forests(self, type, amount):  # Randomly create X amount of forest tiles
+    def create_forests(self, amount):
+    # Randomly create X amount of forest tiles (for future growing)
         for i in range(0, amount):
             tile = (random.randint(5, self.width - 6), random.randint(5, self.height - 6))
             self.forest_tiles.append(tile)
             self.tilemap[tile[0]][tile[1]] = 1
 
     def grow_forests(self, size):
-        loops = 0
+        # SLOW way of growing forests, but results in natural look.
         for i in range(0, size):
-            loops += 1
             tile = random.choice(self.forest_tiles)
 
             adjucent = self.get_adjucent_by_type(0, *tile)
@@ -90,7 +96,9 @@ class Worldmap:
                 if not self.get_adjucent_by_type(0, *newtile) == 0:
                     self.forest_tiles.append(newtile)
 
-    def make_graph(self, width, height): # Temporary, probably
+    def make_graph(self, width, height):
+        # Makes a graph of nodes from all the tiles on the map (for A* search purposes)
+        # Temporary for now.
         nodes = [[AStarGridNode(x, y, self) for y in range(height)] for x in range(width)]
         graph = {}
         for x, y in product(range(width), range(height)):
@@ -105,6 +113,7 @@ class Worldmap:
         return graph, nodes
 
     def draw_roads(self):
+        # At the time being, simply draws a road between two random cities.
         graph, nodes = self.make_graph(self.width, self.height)
         paths = AStarGrid(graph)
 

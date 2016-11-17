@@ -1,5 +1,6 @@
 from math import sqrt
 
+# Everything here is temporary at best. Currently, a node is a python dict.
 
 class AStarGrid(object):
     def __init__(self, graph):
