@@ -11,16 +11,18 @@ class Worldmap:
         self.forest_tiles = []
         self.cities = []
 
+        graph, self.nodes = self.make_graph(self.width, self.height)
+        self.paths = AStarGrid(graph)
+
     def debug_creation(self):
         # Just a testing function. For testing. Manually.
-        self.forest_tiles.append((64, 48))
-        self.tilemap[64][48] = 1
-        self.grow_forests(12000)
-        self.cities.append((16, 48))
-        self.tilemap[16][48] = 3
-        self.cities.append((112, 48))
-        self.tilemap[112][48] = 3
-        self.draw_roads()
+        self.forest_tiles.append((24, 24))
+        self.tilemap[24][24] = 1
+        self.grow_forests(600)
+        self.cities.append((8, 24))
+        self.tilemap[8][24] = 3
+        self.cities.append((40, 24))
+        self.tilemap[40][24] = 3
 
     def exists(self, x, y):
     # Check if tile exists
@@ -98,30 +100,28 @@ class Worldmap:
 
     def make_graph(self, width, height):
         # Makes a graph of nodes from all the tiles on the map (for A* search purposes)
-        # Temporary for now.
         nodes = [[AStarGridNode(x, y, self) for y in range(height)] for x in range(width)]
         graph = {}
-        for x, y in product(range(width), range(height)):
-            node = nodes[x][y]
-            graph[node] = []
-            for i, j in product([-1, 0, 1], [-1, 0, 1]):
-                if not (0 <= x + i < width):
-                    continue
-                if not (0 <= y + j < height):
-                    continue
-                graph[nodes[x][y]].append(nodes[x + i][y + j])
+        for x in range(width):
+            for y in range(height):
+                node = nodes[x][y]
+                graph[node] = []
+                for i, j in product([-1, 0, 1], [-1, 0, 1]):
+                    # Make every node in the graph adjucent to the ones next to it (incl. diagonally)
+                    if not (0 <= x + i < width):
+                        continue
+                    if not (0 <= y + j < height):
+                        continue
+                    graph[nodes[x][y]].append(nodes[x + i][y + j])
         return graph, nodes
 
     def draw_roads(self):
-        # At the time being, simply draws a road between two random cities.
-        graph, nodes = self.make_graph(self.width, self.height)
-        paths = AStarGrid(graph)
-
+        # Simply draws a road between two random cities on the map.
         for i in range (0, 1):
             paired_cities = random.sample(self.cities, 2)
             print("cities: ", paired_cities)
-            start, end = nodes[paired_cities[0][0]][paired_cities[0][1]], nodes[paired_cities[1][0]][paired_cities[1][1]]
-            path = paths.search(start, end)
+            start, end = self.nodes[paired_cities[0][0]][paired_cities[0][1]], self.nodes[paired_cities[1][0]][paired_cities[1][1]]
+            path = self.paths.search(start, end)
             if path is None:
                 print("No path found")
             else:

@@ -9,13 +9,14 @@ GREY = (212, 212, 212)
 BROWN = (220, 110, 110)
 
 TILE_SIZE = 8
-MAP_WIDTH = 128
-MAP_HEIGHT = 96
+MAP_WIDTH = 48
+MAP_HEIGHT = 48
 
 worldmap = Worldmap(MAP_WIDTH, MAP_HEIGHT)
-worldmap.create_forests(24) # 24 forest tiles
-worldmap.grow_forests(8000) # "Organically" grow the 24 forest tiles into ~5000 ones.
-worldmap.create_cities(12) # Randomly scatter 12 cities around.
+worldmap.debug_creation()
+#worldmap.create_forests(24) # 24 forest tiles
+#worldmap.grow_forests(8000) # "Organically" grow the 24 forest tiles into ~5000 ones.
+#worldmap.create_cities(12) # Randomly scatter 12 cities around.
 
 pygame.init()
 DISPLAYSURF = pygame.display.set_mode((MAP_WIDTH * TILE_SIZE, MAP_HEIGHT * TILE_SIZE))
