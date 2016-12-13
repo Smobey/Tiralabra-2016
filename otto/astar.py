@@ -2,16 +2,17 @@ from math import sqrt
 from NeoSet import NeoSet
 from NeoQueue import NeoQueue
 
+
 class AStarGrid(object):
     def heuristic(self, node, start, end):
         # Basic heuristic for determining approx. distance between start and end nodes.
         return sqrt((end.x - node.x)**2 + (end.y - node.y)**2)
 
-    def grid_min(self, set):
+    def grid_min_set(self, set):
         # Returns the "smallest" node from amongst a NeoSet of AStarGridNodes (defined by g + h)
         smallest = set.elements[0]
         for i in range(1, set.index):
-            if set.elements[0].g + set.elements[0].h < smallest.g + smallest.h:
+            if set.elements[i].g + set.elements[i].h < smallest.g + smallest.h:
                 smallest = set.elements[i]
         return smallest
 
@@ -23,7 +24,7 @@ class AStarGrid(object):
         current = start
         openset.add(current)
         while openset:
-            current = self.grid_min(openset)
+            current = self.grid_min_set(openset)
             if current == end:
                 path = NeoQueue()
                 while current.parent:
@@ -34,6 +35,7 @@ class AStarGrid(object):
                 return path
             openset.remove(current)
             closedset.add(current)
+
             for node in current.neighbours:
                 if closedset.search(node) != -1:
                     continue
