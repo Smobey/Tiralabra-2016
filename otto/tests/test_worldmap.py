@@ -1,5 +1,5 @@
 from unittest import TestCase
-from worldmap import Worldmap
+from Worldmap import Worldmap
 
 
 class TestWorldmap(TestCase):

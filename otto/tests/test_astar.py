@@ -1,5 +1,5 @@
 from unittest import TestCase
-from worldmap import *
+from Worldmap import *
 
 class TestAStarGrid(TestCase):
     def setUp(self):

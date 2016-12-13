@@ -1,6 +1,6 @@
 import pygame, sys
 from pygame.locals import *
-from worldmap import *
+from Worldmap import *
 import time
 
 # Testing purposes only.
