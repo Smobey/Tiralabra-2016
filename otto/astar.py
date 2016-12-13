@@ -3,9 +3,6 @@ from NeoSet import NeoSet
 from NeoQueue import NeoQueue
 
 class AStarGrid(object):
-    def __init__(self, graph):
-        self.graph = graph
-
     def heuristic(self, node, start, end):
         # Basic heuristic for determining approx. distance between start and end nodes.
         return sqrt((end.x - node.x)**2 + (end.y - node.y)**2)
@@ -37,7 +34,7 @@ class AStarGrid(object):
                 return path
             openset.remove(current)
             closedset.add(current)
-            for node in self.graph[current]:
+            for node in current.neighbours:
                 if closedset.search(node) != -1:
                     continue
                 if openset.search(node) != -1:
@@ -52,9 +49,44 @@ class AStarGrid(object):
                     openset.add(node)
         return None
 
+    def search2(self, start, end):
+        # Search function using python's prebuilt set() class.
+        # Unused, only for comparison.
+        openset = set()
+        closedset = set()
+        current = start
+        openset.add(current)
+        while openset:
+            current = min(openset, key=lambda o:o.g + o.h)
+            if current == end:
+                path = []
+                while current.parent:
+                    path.append(current)
+                    current = current.parent
+                path.append(current)
+                return path[::-1]
+            openset.remove(current)
+            closedset.add(current)
+            for node in current.neighbours:
+                if node in closedset:
+                    continue
+                if node in openset:
+                    new_g = current.g + current.move_cost(node)
+                    if node.g > new_g:
+                        node.g = new_g
+                        node.parent = current
+                else:
+                    node.g = current.g + current.move_cost(node)
+                    node.h = self.heuristic(node, start, end)
+                    node.parent = current
+                    openset.add(node)
+        return None
+
 
 class AStarGridNode(object):
     # Node object for A* search. One node is an equivalent to a single (x, y) coord in the worldmap.
+    # The worldmap itself needs to be passed to the node so it can access it to calculate the movement costs
+    # to neighbouring tiles.
 
     def __init__(self, x, y, worldmap):
         self.x = x
@@ -63,6 +95,7 @@ class AStarGridNode(object):
         self.h = 0 # Current guess (heurestic)
         self.parent = None
         self.worldmap = worldmap
+        self.neighbours = NeoSet(10)
 
     def move_cost(self, other):
         # Base movement cost for calculation is 10, with 4 added for diagonal movement (approx of sqrt(2))

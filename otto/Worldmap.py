@@ -9,10 +9,11 @@ class Worldmap:
         self.tilemap = [[0 for x in range(height)] for y in range(width)]
 
         self.forest_tiles = []
+        self.water_tiles = []
         self.cities = []
 
-        graph, self.nodes = self.make_graph(self.width, self.height)
-        self.paths = AStarGrid(graph)
+        self.nodes = self.make_graph(self.width, self.height)
+        self.paths = AStarGrid()
 
     def debug_creation(self):
         # Just a testing function. For testing. Manually.
@@ -62,17 +63,22 @@ class Worldmap:
             adjucent.append((x, y + 1))
         return adjucent
 
-    def create_cities(self, amount):
+    def create_cities(self, amount, x=-1, y=-1):
     # Randomly create X amount of city tiles
-        for i in range(0, amount):
-            plains = []
-            for x in range(5, self.width - 6):  # Pick non-forest/mountain/etc tiles for city locations
-                for y in range(5, self.height - 6):
-                    if self.get_type(x, y) == 0:
-                        plains.append((x, y))
-            tile = random.choice(plains)
-            self.cities.append(tile)
-            self.tilemap[tile[0]][tile[1]] = 3
+        if x == -1:
+            for i in range(0, amount):
+                plains = []
+                for x in range(5, self.width - 6):  # Pick non-forest/mountain/etc tiles for city locations
+                    for y in range(5, self.height - 6):
+                        if self.get_type(x, y) == 0:
+                            plains.append((x, y))
+                tile = random.choice(plains)
+                self.cities.append(tile)
+                self.tilemap[tile[0]][tile[1]] = 3
+        else:
+            self.cities.append((x, y))
+            self.tilemap[x][y] = 3
+
 
     def create_forests(self, amount):
     # Randomly create X amount of forest tiles (for future growing)
@@ -80,6 +86,13 @@ class Worldmap:
             tile = (random.randint(5, self.width - 6), random.randint(5, self.height - 6))
             self.forest_tiles.append(tile)
             self.tilemap[tile[0]][tile[1]] = 1
+
+    def create_lakes(self, amount):
+    # Randomly create X amount of water tiles (for future growing)
+        for i in range(0, amount):
+            tile = (random.randint(5, self.width - 6), random.randint(5, self.height - 6))
+            self.water_tiles.append(tile)
+            self.tilemap[tile[0]][tile[1]] = 2
 
     def grow_forests(self, size):
         # SLOW way of growing forests, but results in natural look.
@@ -101,19 +114,16 @@ class Worldmap:
     def make_graph(self, width, height):
         # Makes a graph of nodes from all the tiles on the map (for A* search purposes)
         nodes = [[AStarGridNode(x, y, self) for y in range(height)] for x in range(width)]
-        graph = {}
         for x in range(width):
             for y in range(height):
-                node = nodes[x][y]
-                graph[node] = []
                 for i, j in product([-1, 0, 1], [-1, 0, 1]):
                     # Make every node in the graph adjucent to the ones next to it (incl. diagonally)
                     if not (0 <= x + i < width):
                         continue
                     if not (0 <= y + j < height):
                         continue
-                    graph[nodes[x][y]].append(nodes[x + i][y + j])
-        return graph, nodes
+                    nodes[x][y].neighbours.add(nodes[x + i][y + j])
+        return nodes
 
     def draw_roads(self):
         # Simply draws a road between two random cities on the map.

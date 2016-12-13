@@ -4,14 +4,11 @@ from numpy import ndarray
 class NeoSet(object):
     # Simulates a java-style ArrayList, with the intention of making a dynamically sizeable array.
     # By default, Python has no support for fixed-size arrays; I'm importing ndarray from numpy to fix that problem.
-    # This is ABSURDLY INEFFICIENT, partially because of the number of hoops I'm jumping through.
+    # It's fairly inefficient for its intended purpose (to support the A* search function).
     # It would've been far wiser to implement this as some sort of a hash function,
     # but I ran out of time trying to do that.
 
-    def __init__(self):
-        self.init_with_size(100)
-
-    def init_with_size(self, size):
+    def __init__(self, size=100):
         self.size = size
         self.index = 0
         self.elements = self.make_array(size)
@@ -58,5 +55,8 @@ class NeoSet(object):
             self.index -= 1
 
     def __iter__(self):
-        for e in self.elements:
-            yield e
+        for i in range (0, self.index):
+            yield self.elements[i]
+
+    def __str__(self):
+        return str(self.elements)
